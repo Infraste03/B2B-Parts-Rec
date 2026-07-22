@@ -95,7 +95,7 @@ This directory contains:
 
 ### Paper Section 4 - Table 4 & 5: Leave-One-Out and Temporal Split Results
 
-> *"Table~\ref{tab:results} shows the main results for the Leave-One-Out protocol, including FASER, while Table~\ref{tab:results_temporal} reports the baseline results under the Temporal Split."*
+> *"Table 4  shows the main results for the Leave-One-Out protocol, including FASER, while Table 5  reports the baseline results under the Temporal Split."*
 
 Both the LOO and Temporal Split results reported in the paper are computed from the raw per-run outputs in this repository. The detailed per-run CSV logs and best hyperparameter configurations for all sequential baselines (including RepeatNet) are available in:
 
@@ -246,6 +246,7 @@ This repository uses [Git LFS](https://git-lfs.com/) to store large data files (
 ```bash
 # Install Git LFS (only needed once per machine)
 git lfs install
+```
 
 ```bash
 git clone https://github.com/Infraste03/B2B-Parts-Rec.git

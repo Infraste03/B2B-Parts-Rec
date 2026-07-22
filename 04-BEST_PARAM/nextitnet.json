@@ -1,0 +1,15 @@
+{
+    "model": "NextItNet",
+    "best_params": {
+        "embedding_size": 128,
+        "n_layers": 4,
+        "kernel_size": 3,
+        "dilations": [1, 2, 4, 1],
+        "learning_rate": 0.001,
+        "dropout_prob": 0.3
+    },
+    "performance": {
+        "NDCG@20": 0.0871,
+        "Recall@20": 0.1963
+    }
+}

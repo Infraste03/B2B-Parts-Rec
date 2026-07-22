@@ -1,0 +1,23 @@
+2026-07-17 10:38:20,719 - INFO - Starting to create datasets for LightGBM re-scoring (train/valid/test).
+2026-07-17 10:38:20,720 - INFO - Using device: cpu
+2026-07-17 10:38:20,782 - ERROR - Fatal error during execution.
+Traceback (most recent call last):
+  File "C:\Users\fstef\Desktop\B2B-Parts-Rec\05-HYBRID_RERANKING\NEW_RESCORING\01_temporal_generate_df.py", line 910, in main
+    model, recbole_dataset = load_sasrec_model(CHECKPOINT_PATH, config_dict, DEVICE)
+  File "C:\Users\fstef\Desktop\B2B-Parts-Rec\05-HYBRID_RERANKING\NEW_RESCORING\01_temporal_generate_df.py", line 799, in load_sasrec_model
+    dataset = create_dataset(config)
+  File "C:\Users\fstef\Desktop\B2B-Parts-Rec\.venv\lib\site-packages\recbole\data\utils.py", line 72, in create_dataset
+    dataset = dataset_class(config)
+  File "C:\Users\fstef\Desktop\B2B-Parts-Rec\.venv\lib\site-packages\recbole\data\dataset\sequential_dataset.py", line 36, in __init__
+    super().__init__(config)
+  File "C:\Users\fstef\Desktop\B2B-Parts-Rec\.venv\lib\site-packages\recbole\data\dataset\dataset.py", line 108, in __init__
+    self._from_scratch()
+  File "C:\Users\fstef\Desktop\B2B-Parts-Rec\.venv\lib\site-packages\recbole\data\dataset\dataset.py", line 118, in _from_scratch
+    self._load_data(self.dataset_name, self.dataset_path)
+  File "C:\Users\fstef\Desktop\B2B-Parts-Rec\.venv\lib\site-packages\recbole\data\dataset\dataset.py", line 267, in _load_data
+    self._download()
+  File "C:\Users\fstef\Desktop\B2B-Parts-Rec\.venv\lib\site-packages\recbole\data\dataset\dataset.py", line 234, in _download
+    url = self._get_download_url("url")
+  File "C:\Users\fstef\Desktop\B2B-Parts-Rec\.venv\lib\site-packages\recbole\data\dataset\dataset.py", line 227, in _get_download_url
+    raise ValueError(
+ValueError: Neither [C:\Users\fstef\Desktop\B2B-Parts-Rec\05-HYBRID_RERANKING\NEW_RESCORING\dataset\b2b_data] exists in the device nor [b2b_data] a known dataset name.

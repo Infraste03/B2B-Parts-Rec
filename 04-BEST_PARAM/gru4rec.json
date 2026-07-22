@@ -1,0 +1,18 @@
+{
+    "model": "GRU4Rec",
+    "best_params": {
+        "embedding_size": 128,
+        "hidden_size": 128,
+        "num_layers": 1,
+        "dropout_prob": 0.4,
+        "learning_rate": 0.0031622776601683794,
+        "weight_decay": 1e-05,
+        "loss_type": "CE",
+        "train_batch_size": 2048,
+        "sampling_size": 3
+    },
+    "performance": {
+        "NDCG@20": 0.1661,
+        "Recall@20": 0.3151
+    }
+}

@@ -1,0 +1,6 @@
+| Metric                                      | Value      | Interpretation                                                   | Conclusion for B2B                                   |
+|:--------------------------------------------|:-----------|:-----------------------------------------------------------------|:-----------------------------------------------------|
+| Price Elasticity of Demand (β₁)             | -0.069     | Highly inelastic demand (values between -1 and 0).               | Price changes have a minimal impact on sales volume. |
+| Granger Causality (p-value, lag 7)          | 0.768      | Not statistically significant (p-value > 0.05).                  | Past price changes do not help predict future sales. |
+| Mutual Information (Sales Volume; Month)    | 0.030 bits | Seasonality provides significant information about sales volume. | Seasonality is a strong predictive signal.           |
+| Mutual Information (Sales Volume; Discount) | 0.003 bits | Discounts provide very little information about sales volume.    | Price incentives are a weak predictive signal.       |

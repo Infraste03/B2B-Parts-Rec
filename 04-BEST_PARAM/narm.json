@@ -1,0 +1,14 @@
+{
+    "model": "NARM",
+    "best_params": {
+        "embedding_size": 64,
+        "hidden_size": 256,
+        "n_layers": 1,
+        "dropout_prob": 0.3,
+        "learning_rate": 0.001
+    },
+    "performance": {
+        "NDCG@20": 0.1666,
+        "Recall@20": 0.3105
+    }
+}

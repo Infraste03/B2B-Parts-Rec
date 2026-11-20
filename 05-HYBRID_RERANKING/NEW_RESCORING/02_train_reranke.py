@@ -145,10 +145,14 @@ def main():
     parser.add_argument("--pos_weight", type=float, default=10.0,
                         help="Positive weight (only if --use_pos_weight). Start small (e.g., 5-20).")
     parser.add_argument("--num_threads", type=int, default=8)
+    parser.add_argument("--seed", type=int, default=42,
+                        help="Random seed used by LightGBM (default: 42)")
 
     parser.add_argument("--tune", action="store_true",
                         help="Enable Optuna hyperparameter tuning. WARNING: adds significant runtime!")
-    parser.add_argument("--seed", type=int, default=42, help="Random seed for reproducibility")
+
+    parser.add_argument("--with_desc_emb", action="store_true",
+                        help="Add item description embeddings to the super features")
     args = parser.parse_args()
 
     train_dir = os.path.join(args.root, "train")
@@ -251,6 +255,11 @@ def main():
 
     feature_cols = [c for c in super_features if c in feature_cols_iniziali]
     print(f"[ACTION] USING ONLY {len(feature_cols)} SUPER FEATURES: {feature_cols}")
+
+    if args.with_desc_emb:
+        emb_cols = infer_embedding_cols(df_train)
+        feature_cols = feature_cols + emb_cols
+        print(f"[ACTION] Adding {len(emb_cols)} description embedding features")
 
     #feature_cols = [c for c in df_train.columns if c not in drop_cols]
     assert label_col not in feature_cols, "target_boost ended up in feature columns!"

@@ -51,9 +51,9 @@ This file contains a summary table with values, interpretations, and B2B-specifi
 
 ---
 
-### Paper Section 2.2 - Repeat Purchase Rate (68.3%)
+### Paper Section 2.2 - Repeat Purchase Rate (74.47%)
 
-> *"68.3% of all transactions represent a customer reordering a previously purchased item."*
+> *"74.47% of all transactions represent a customer reordering a previously purchased item."*
 
 **Script:** `02-ADDITIONAL_PRICE_ANALYSIS/analyze_advanced_behavior.py`
 **Function:** `analyze_repeat_purchase_behavior()`
@@ -81,13 +81,13 @@ This function groups transactions by `(CUSTOMER_ID, ITEM_ID)`, sorts chronologic
 
 > *"The complete list of all engineered features, including those discarded during selection, is provided in the online material."*
 
-**Directory:** `05-HYBRID_RERANKING/TWO_STAGE_RERANK_HYSAR/`
+**Directory:** `05-HYBRID_RERANKING/NEW_RESCORING/`
 
 This directory contains:
 - The full LightGBM LambdaRank training pipeline with Bayesian hyperparameter optimization via Optuna (30 trials).
 - Feature importance plots generated after training, showing the relative contribution of each B2B-specific feature group (compatibility, recency/frequency, global, price).
 - The grid search results for the fusion weight `w` on the validation set, for both the LOO and Temporal Split protocols.
-- A dedicated `README.md` inside this directory with further documentation specific to the reranking experiments.
+- A dedicated `README.md` in `05-HYBRID_RERANKING/` with further documentation specific to the reranking experiments.
 - Feature importance CSV files: `05-HYBRID_RERANKING/NEW_RESCORING/19processed_data/19rescoring_parts/lgbm_model`
 - Fusion weight (w) tuning results: `05-HYBRID_RERANKING/NEW_RESCORING/19processed_data/19rescoring_parts/`
 
@@ -177,13 +177,13 @@ The repository is organized chronologically to reflect the research workflow, fr
 │   └── 3_output/                        # Generated plots and summaries
 │
 ├── 02-ADDITIONAL_PRICE_ANALYSIS/
-│   ├── analyze_advanced_metrics.py      # *** KEY: MI, elasticity, Granger (paper footnote 2) ***
+│   ├── analyze_advanced_metrics.py      # *** KEY: MI, elasticity, Granger (paper Section 2.2) ***
 │   ├── analyze_price_dynamics.py        # Price trends, seasonality, repurchase cycle plots
 │   ├── analyze_advanced_behavior.py     # Repeat purchase rate, elasticity by category
 │   ├── analyze_item_behavior.py         # Item archetype quadrant analysis
 │   └── 1_results/
 │       ├── advanced_metrics/            # advanced_metrics_summary.txt (all paper metrics)
-│       ├── price_analysis/              # Seasonality and repurchase cycle plots (Figures 2–3)
+│       ├── price_analysis/              # Seasonality and repurchase cycle plots (Figures 3–4)
 │       ├── advanced_behavior_analysis/  # Repeat vs. discovery plots
 │       └── item_behavior_analysis/      # Item archetype plots
 │
@@ -199,18 +199,21 @@ The repository is organized chronologically to reflect the research workflow, fr
 │   ├── sasrec.json                      # Best hyperparameter configuration for SASRec
 │   └── ...                              # One JSON file per model
 │
-├── 05-HYBRID_RERANKING/                # *** Shared codebase for both LOO and Temporal Split; only candidate generation (01_*) differs per protocol, see below ***
-│   ├── NEW_RESCORING/                 # LOO reranking outputs
-│   ├── NEW_RESCORING_TEMPORAL/       # Temporal Split reranking outputs
-│   └── TWO_STAGE_RERANK_HYSAR/              # *** KEY: LightGBM LambdaRank reranker (paper footnote 4) ***
-│       ├── 19processed_data/                # Pre-processed candidate data for reranking
-│       ├── SASRec-Oct-01-2025_17-39-33.pth  # Pre-trained SASRec LOO model weights (Stage 1)
-|       ├── SASRec-Oct-07-2025_21-23-41.pth  # Pre-trained SASRec Temporal Split model weights (Stage 1)
-│       ├── 01_generate_df.py                # [LOO-specific] Generates candidate dataframe from SASRec LOO outputs
-|       ├── 01_temporal_generate_df.py       # [Temporal-specific] Generates candidate dataframe from SASRec Temporal Split outputs
-│       ├── 02_train_reranker.py             # [Shared for both protocols] Trains the LightGBM LambdaRank reranker (Stage 2)==> paper footnote 4 for feature importance
-│       ├── 03_evaluate_late_fusion.py       # [Shared for both protocols] Evaluates the final late fusion (SASRec + LightGBM)
-│       └── 04_feature_analysis.py           # [Shared for both protocols] Feature importance analysis (paper footnote 4)
+├── 05-HYBRID_RERANKING/                 # FASER two-stage re-ranking (shared code for LOO and Temporal Split)
+│   ├── README.md                        # Detailed instructions for the re-ranking experiments
+│   ├── NEW_RESCORING/                   # Scripts, SASRec checkpoints, and LOO outputs
+│   │   ├── SASRec-Oct-01-2025_17-39-33.pth   # Pre-trained SASRec weights, LOO (Stage 1)
+│   │   ├── SASRec-Oct-07-2025_21-23-41.pth   # Pre-trained SASRec weights, Temporal Split (Stage 1)
+│   │   ├── 01_generate_df.py            # [LOO] Candidate generation and feature computation
+│   │   ├── 01_temporal_generate_df.py   # [Temporal] Candidate generation and feature computation
+│   │   ├── 02_train_reranke.py          # [Shared] Trains the LightGBM LambdaRank re-ranker (Stage 2)
+│   │   ├── 03_evaluate_late_fusion.py   # [Shared] Tunes w on validation and evaluates the late fusion
+│   │   ├── 04_feature_analysis.py       # [Shared] Feature selection and feature importance analysis
+│   │   ├── 05_significance_tests.py     # [Shared] Paired significance tests (FASER vs. SASRec)
+│   │   └── 19processed_data/19rescoring_parts/   # LOO candidate data, trained re-rankers, results
+│   └── NEW_RESCORING_TEMPORAL/
+│       └── candidate_features/          # Temporal Split candidate data, trained re-rankers, results
+│
 |
 ├── 06-SUPPLEMENTARY_PLOTS/              # *** KEY: Dataset characteristics visualizations ***
 │   ├── 1_item_long_tail.pdf             # Item popularity and long-tail distribution
@@ -287,7 +290,7 @@ All key results are already included in the repository and can be inspected dire
 - **Paper metrics (MI, elasticity, Granger):** `02-ADDITIONAL_PRICE_ANALYSIS/1_results/advanced_metrics/advanced_metrics_summary.txt`
 - **Benchmark performance:** See [Benchmark Results Summary](#benchmark-results-summary) below. Full per-run logs are in `03-BENCHMARKS/<model>/CSV_RESULTS/`.
 - **Best hyperparameter configurations:** `04-BEST_PARAM/<model>.json`
-- **Reranking results and feature importance:** `05-HYBRID_RERANKING/TWO_STAGE_RERANK_HYSAR/`
+- **Reranking results and feature importance:** `05-HYBRID_RERANKING/NEW_RESCORING/19processed_data/19rescoring_parts/` (LOO) and `05-HYBRID_RERANKING/NEW_RESCORING_TEMPORAL/candidate_features/` (Temporal Split)
 
 ### Step 1: Data Preparation
 
@@ -322,12 +325,12 @@ Note that step 2a and 2b both take the output of step 1 as input, but produce `.
 ### Step 2: Replicating the Data Analysis
 
 ```bash
-# Main aggregated analysis (produces Figures 2 and 3 of the paper)
+# Main aggregated analysis (produces Figures 3 and 4 of the paper)
 python 02-ADDITIONAL_PRICE_ANALYSIS/analyze_price_dynamics.py \
     --input_dir 00-DATA/1_anonymous_dataset \
     --output_dir 02-ADDITIONAL_PRICE_ANALYSIS/1_results/price_analysis
 
-# Advanced metrics (MI, elasticity, Granger - paper footnote 2)
+# Advanced metrics (MI, elasticity, Granger - paper Section 2.2)
 python 02-ADDITIONAL_PRICE_ANALYSIS/analyze_advanced_metrics.py \
     --input_dir 00-DATA/1_anonymous_dataset \
     --output_dir 02-ADDITIONAL_PRICE_ANALYSIS/1_results/advanced_metrics
@@ -358,8 +361,8 @@ python 03-BENCHMARKS/sasrec/run_stability_sasrec.py
 ### Step 4: Hybrid Reranking Experiments
 
 ```bash
-cd 05-HYBRID_RERANKING/TWO_STAGE_RERANK_HYSAR
-# See the README.md inside this directory for full instructions
+cd 05-HYBRID_RERANKING/NEW_RESCORING
+# See 05-HYBRID_RERANKING/README.md for full instructions
 ```
 
 ---
@@ -395,19 +398,19 @@ We performed an extensive hyperparameter search and a stability analysis (5 runs
 
 
 
-### Non-Personalized Baselines: Global vs. Temporal Popularity
+### Non-Personalized Baselines: Time-Window Popularity
 
-We  include a time-based popularity-based baseline to the experiments
+We include time-window popularity baselines in the experiments (Table 7 of the paper).
 
-| Window Size         | Recall@20 (LOO) | NDCG@20 (LOO) | Recall@20 (Temporal) | NDCG@20 (Temporal) |
-|---------------------|-----------------|---------------|-----------------|---------------|
-| **Global (All Time)**| **0.0457**      | **0.0175**   |0.0236 | 0.1719|
-| 14 Days             | 0.0365          | 0.0168        |0.0645 | 0.0277|
-| 30 Days             | 0.0411          | 0.0155        |0.0755 | 0.0345|
-| 60 Days             | 0.0411          | 0.0134        |0.0812 | 0.0369|
-| 90 Days             | 0.0274          | 0.0082        |0.0869 | 0.0382|
-| 180 Days            | 0.0274          | 0.0083        |0.0965 | 0.0418|
-| 365 Days            | 0.0274          | 0.0089        |0.0948 | 0.04225|
+| Window Size | Recall@20 (LOO) | NDCG@20 (LOO) | Recall@20 (Temporal) | NDCG@20 (Temporal) |
+| ----------- | --------------- | ------------- | -------------------- | ------------------ |
+| 14 Days     | 0.0365          | 0.0168        | 0.0645               | 0.0277             |
+| 30 Days     | 0.0411          | 0.0155        | 0.0755               | 0.0345             |
+| 60 Days     | 0.0411          | 0.0134        | 0.0812               | 0.0369             |
+| 90 Days     | 0.0274          | 0.0082        | 0.0869               | 0.0382             |
+| 180 Days    | 0.0274          | 0.0083        | 0.0965               | 0.0418             |
+| 365 Days    | 0.0274          | 0.0089        | 0.0948               | 0.0423             |
+| **FASER**   | **0.424**       | **0.221**     | **0.6224**           | **0.4182**         |
 
 *Metrics for LOO and Temporal splits are reported as `mean ± std_dev` over 5 runs. Original single-run results are kept for models pending stability analysis.
 
@@ -415,7 +418,7 @@ We  include a time-based popularity-based baseline to the experiments
 
 ---
 
-### FASER: A Feature-Augmented Sequential Ranking Approac
+### FASER: A Feature-Augmented Sequential Ranking Approach
 
 To bridge the gap between latent sequential patterns and real-world B2B supply-chain rules, we implemented an advanced Two-Stage Recommender System.
 
@@ -426,7 +429,7 @@ To empirically demonstrate that unique organizational characteristics dictate re
 
 During the training of the LambdaRank model, the sequential signals (`sasrec_score` and `sasrec_rank`) are completely masked. This forces LightGBM to act as an independent "domain expert", optimizing the NDCG specifically on a restricted set of core B2B rules:
 
-*   **B2B Compatibility (Hard Constraints):** `is_compatible_with_current_machine`, `item_machine_support`, `is_compatible_with_current_prodmodel` (Capturing the strict mechanical constraints between raw items and industrial machines).
+*   **B2B Compatibility:** `is_compatible_with_current_machine`, `item_machine_support`, `item_prodmodel_support` (Capturing the co-occurrence of items with machines and product models in the training data).
 *   **Temporal Recurrence Data:** `days_since_last_purchase_same_item`, `user_item_freq_hist` (Capturing the lifecycle and recurring replenishment of specific B2B consumables).
 *   **Product Line Continuity:** `is_same_product_model_as_last` (Validating if the candidate belongs to the exact technical family of the user's immediate preceding purchase).
 *   **Global Context:** `item_popularity` (Extrapolated purely from historical data to prevent look-ahead bias).
@@ -441,7 +444,7 @@ The final rank is determined by the following formula:
 \text{Final Score} = \text{Score}_{\mathrm{SASRec}} + W \times \text{Score}_{\mathrm{LGBM}}
 ```
 
-The parameter $W$ is calibrated via Grid Search on the Validation set to maximize the NDCG@20 metric, and subsequently frozen for the Test set.
+The parameter $W$ is calibrated via Grid Search on the Validation set to maximize the Recall@20 metric, and subsequently frozen for the Test set.
 
 
 | Architecture | Recall@20 (LOO) | NDCG@20 (LOO) | Recall@20 (Temporal) | NDCG@20 (Temporal) |

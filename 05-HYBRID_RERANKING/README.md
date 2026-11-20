@@ -132,6 +132,33 @@ This makes the reranker behave as a business-aware expert focused on compatibili
 
 To isolate the contribution of each feature category, six additional variants of Stage 2 were trained, each on a different subset of feature categories (B2B Compatibility, Recency & Frequency, Global, Price), keeping Stage 1 and the LightGBM hyperparameters fixed. Each variant was evaluated under both the LOO and Temporal Split protocols, with the fusion weight `w` independently re-tuned per variant and protocol. See the paper (Table 6) for the full results; the trained models and outputs for each variant are available in the same output directories as the final configuration (see [Output Artifacts](#output-artifacts) below).
 
+### Additional Experiments
+
+Two additional experiments reported in the paper can be reproduced with the scripts in `NEW_RESCORING/`.
+
+**Robustness to within-order context (LOO).** `01_generate_df_ordermask.py` is a variant of `01_generate_df.py` that, with the `--mask_same_order` flag, removes all items of the current order (same `ORDER_ID`) from the SASRec input sequence and from the history-based features of each validation and test event. The trained models are not changed: the training split is only used to rebuild customer histories, and the existing SASRec checkpoint and LightGBM re-rankers are evaluated on the masked data with `03_evaluate_late_fusion.py`. Without the flag, the script reproduces the standard candidate data. The output folder (`--out_root`) must be new and empty.
+
+```bash
+# Run from the repository root
+python 05-HYBRID_RERANKING/NEW_RESCORING/01_generate_df_ordermask.py \
+    --out_root path/to/new/output_folder \
+    --mask_same_order
+
+python 05-HYBRID_RERANKING/NEW_RESCORING/03_evaluate_late_fusion.py \
+    --root path/to/new/output_folder \
+    --model path/to/your/lgbm_lambdarank_model.joblib \
+    --out_csv path/to/new/output_folder/w_tuning.csv
+```
+
+**Item description embeddings.** The `--with_desc_emb` flag of `02_train_reranke.py` adds the quantized item description embeddings (`item_desc_emb_*`, already contained in the pre-processed candidate data) to the seven features of the final FASER configuration.
+
+```bash
+python 05-HYBRID_RERANKING/NEW_RESCORING/02_train_reranke.py \
+    --root path/to/your/rescoring_parts \
+    --seed 42 \
+    --with_desc_emb
+```
+
 ### Stage 3: Late Fusion Evaluation (`03_evaluate_late_fusion.py`)
 
 The final stage loads the trained LambdaRank model, predicts reranking scores on validation and test candidates, and combines them with SASRec scores using linear interpolation.
@@ -231,10 +258,10 @@ This pipeline is run **once per evaluation protocol**: once for LOO (output root
 
 | Model | Protocol | Recall@20 | NDCG@20 |
 |------|------|-----------|---------|
-| SASRec baseline (`w = 0`) | LOO | 0.3699 | 0.1950 |
-| **FASER** (`best w = 2`) | LOO | **0.4247** | **0.2193** |
-| SASRec baseline (`w = 0`) | Temporal Split | 0.5923 | 0.4014 |
-| **FASER** (`best w = 20`) | Temporal Split | **0.6228** | **0.4197** |
+| SASRec baseline (`w = 0`) | LOO | 0.3699 ± 0.0103 | 0.1950 ± 0.0085 |
+| **FASER** (`best w = 2`) | LOO | **0.424 ± 0.003** | **0.221 ± 0.001** |
+| SASRec baseline (`w = 0`) | Temporal Split | 0.5923 ± 0.0010 | 0.4014 ± 0.0007 |
+| **FASER** (`best w = 20`) | Temporal Split | **0.6224 ± 0.0004** | **0.4182 ± 0.0015** |
 
 Under both protocols, the improvement of FASER over SASRec is statistically significant (paired t-test and Wilcoxon signed-rank test, `p < 0.0001` for both metrics under Temporal Split, `p < 0.01` for Recall@20 under LOO). See `05_significance_tests.py` output for full details.
 
